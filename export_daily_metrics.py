@@ -148,45 +148,59 @@ def upload_to_s3(file_path, export_date):
 
 def main():
 
-    export_date = get_export_date()
+    try:
 
-    customer_id = get_required_env("CUSTOMER_ID")
-    logging.info(
-        "Starting export for customer_id=%s date=%s",
-        customer_id,
-        export_date
-    )
+        export_date = get_export_date()
 
-    client = get_clickhouse_client()
+        customer_id = get_required_env("CUSTOMER_ID")
 
-    column_names, rows = fetch_daily_metrics(
-        client,
-        customer_id,
-        export_date
-    )
-    logging.info(
-        "Fetched %s rows from ClickHouse",
-        len(rows)
-    )
-    if not rows:
-
-        logging.warning(
-            "No records found for export date=%s",
+        logging.info(
+            "Starting export for customer_id=%s date=%s",
+            customer_id,
             export_date
         )
 
-    csv_path = write_csv(
-        column_names,
-        rows,
-        export_date
-    )
+        client = get_clickhouse_client()
 
-    upload_to_s3(
-        csv_path,
-        export_date
-    )
-    logging.info("Export completed successfully")
+        column_names, rows = fetch_daily_metrics(
+            client,
+            customer_id,
+            export_date
+        )
 
+        logging.info(
+            "Fetched %s rows from ClickHouse",
+            len(rows)
+        )
 
+        if not rows:
+
+            logging.warning(
+                "No records found for export date=%s",
+                export_date
+            )
+
+        csv_path = write_csv(
+            column_names,
+            rows,
+            export_date
+        )
+
+        upload_to_s3(
+            csv_path,
+            export_date
+        )
+
+        logging.info(
+            "Export completed successfully"
+        )
+
+    except Exception:
+
+        logging.exception(
+            "Export job failed"
+        )
+
+        raise
 if __name__ == "__main__":
     main()
