@@ -27,14 +27,17 @@ The export runs for the previous day's data and aggregates call activity by agen
 
 ## Architecture
 
+## Architecture
+
+```text
 +-------------+
 | ClickHouse  |
 +-------------+
        |
        v
-+------------------+
-| Python Export Job|
-+------------------+
++-------------------+
+| Python Export Job |
++-------------------+
        |
        v
 +-------------+
@@ -45,6 +48,7 @@ The export runs for the previous day's data and aggregates call activity by agen
 +-------------+
 | Amazon S3   |
 +-------------+
+```
 
 ## Project Structure
 
