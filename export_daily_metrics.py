@@ -185,6 +185,13 @@ def main():
             rows,
             export_date
         )
+        file_size = os.path.getsize(csv_path)
+
+        logging.info(
+            "Generated CSV file=%s size=%s bytes",
+            csv_path,
+            file_size
+)
 
         upload_to_s3(
             csv_path,
