@@ -27,7 +27,24 @@ The export runs for the previous day's data and aggregates call activity by agen
 
 ## Architecture
 
-ClickHouse → Python Export Job → CSV File → Amazon S3
++-------------+
+| ClickHouse  |
++-------------+
+       |
+       v
++------------------+
+| Python Export Job|
++------------------+
+       |
+       v
++-------------+
+| CSV Report  |
++-------------+
+       |
+       v
++-------------+
+| Amazon S3   |
++-------------+
 
 ## Project Structure
 
