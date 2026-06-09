@@ -1,9 +1,9 @@
 import os
 import csv
 import logging
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
 import boto3
 import clickhouse_connect
 from dotenv import load_dotenv
@@ -137,14 +137,33 @@ def upload_to_s3(file_path, export_date):
         region_name=os.getenv("AWS_REGION", "us-east-1")
     )
 
-    s3_client.upload_file(file_path, bucket, s3_key)
+    max_attempts = 3
 
-    logging.info(
-        "Uploaded file to s3://%s/%s",
-        bucket,
-        s3_key
-    )
+    for attempt in range(1, max_attempts + 1):
 
+        try:
+            s3_client.upload_file(file_path, bucket, s3_key)
+
+            logging.info(
+                "Uploaded file to s3://%s/%s",
+                bucket,
+                s3_key
+            )
+
+            return
+
+        except Exception:
+
+            logging.exception(
+                "S3 upload failed on attempt %s of %s",
+                attempt,
+                max_attempts
+            )
+
+            if attempt == max_attempts:
+                raise
+
+            time.sleep(5)
 
 def main():
 
@@ -206,6 +225,10 @@ def main():
 
         logging.exception(
             "Export job failed"
+        )
+
+        logging.error(
+            "Alert placeholder: notify Slack/email/monitoring system about export failure"
         )
 
         raise
